@@ -4,95 +4,132 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Spotlight Hub</title>
 </head>
 <body>
-  <div>
-    <h2>Sending Size - RESIZE</h2>
-    <button title="Setting size" id="size">Send size</button>
-    <button title="New Block" id="append">Add new block of text</button>
-  </div>
-  <div>
-    <h2>Header Items - TRACK_ACTION</h2>
-    <button title="Link Clicked" data-track="Header menu click - Home" class="linkClicked">Home</button>
-    <button title="Link Clicked" data-track="Header menu click - Have Your Say" class="linkClicked">Have Your Say</button>
-  </div>
-  <div>
-    <h2>Video - TRACK_ACTION</h2>
-    <button title="play video" data-track="Play Video" class="linkClicked">Play Video</button>
-  </div>
-  <div>
-    <h2>Submit Survey - TRACK_ACTION</h2>
-    <button title="Submit Survey" data-track="Submit Survey" class="linkClicked">Submit Survey</button>
-  </div>
-  <br/>
-  <br/>
-  <div id="textHolder">
-    <div id="textHolderInner">
-      The Add and Remove selections look as if they're fine. Currently I've got a but in my page where the origin is set incorrectly
-    </div>
-  </div>
+  
+
+  <iframe 
+    id="js-spotlight-hub" 
+    style="border: none;"
+    width="100%"
+    height="700px"
+    src="https://sbfanhope.racingpost.com"
+    sandbox="allow-scripts allow-same-origin allow-popups">
+  </iframe>
   <script>
 
-    //****************//
-    //*** Resizing ***//
-    //****************//
-    const sizeButton = document.querySelector("#size");
-    sizeButton.addEventListener('click',() => sendResize())
+          function SpotlightHub(props) {
+                  const {
+                    addOutcome,
+                    removeOutcome,
+                    trackAnalyticsAction,
+                    spotlightHubElement,
+                    origin,
+                    hubPageName
+                  } = props;
 
-    const sendResize = () => {
-      // look at how to send full height as seems to miss off the margins
-      var pageHeight = document.body.clientHeight
-      var scrollHeight = document.body.scrollHeight;
-      sendMessage({
-        type: "RESIZE",
-        payload: {
-          pageHeight
-        },
-      })
-    }
+                  this.SpotlightHub = SpotlightHub;
+                  this.addOutcome = addOutcome;
+                  this.removeOutcome = removeOutcome;
+                  this.trackAnalyticsAction = trackAnalyticsAction;
+                  this.spotlightHubElement = spotlightHubElement;
+                  this.origin = origin;
+                  this.hubPageName = hubPageName;
+                  this.eventCallbackHandler = this.eventCallback.bind(this);
+                  this.resizeHandler = this.resizeHandler.bind(this);
+                  this.bindEvents();
+              }
 
-    const appendButton = document.querySelector("#append");
-    const textHolder = document.querySelector('#textHolder');
-    const textHolderInner = document.querySelector('#textHolderInner');
+              SpotlightHub.prototype.eventCallback = function(event) {
+                      if (!event) {
+                          return;
+                      }
+                      if (event.origin !== this.origin) {
+                          return;
+                      }
+                      if (event.data) {
+                          const data = event.data;
+                          switch (data.type) {
+                              case "BF_ADD_SELECTION":
+                                  // this.addOutcomeToBetslip(data.payload);
+                                  this.trackAnalyticsAction(`[${this.hubPageName}] added outcome: ${data.payload.ev_oc_id}`)
+                              break;
+                              case "BF_REMOVE_SELECTION":
+                                  // this.removeOutcome(data.payload.ev_oc_id);
+                                  this.trackAnalyticsAction(`[${this.hubPageName}] removed outcome: ${data.payload.ev_oc_id}`)
+                              break;
+                              case "REDIRECT_LINK":
+                                  this.redirect(data.payload.url);
+                                  this.trackAnalyticsAction(`[${this.pageName}] redirect: ${data.payload.url}`)
+                              break;
+                              case "RESIZE":
+                                  this.spotlightHubElement.style.height = this.resizeHandler(data.payload.pageHeight);
+                              break;
+                              case "TRACK_ACTION":
+                                  this.trackAnalyticsAction(`[${this.pageName}] event: ${data.payload.event}`)
+                              break;
+                          }
+                      }
+              }
 
-    appendButton.addEventListener('click', () => addNewBlock())
+              SpotlightHub.prototype.resizeHandler = function(height) {
+                  this.spotlightHubElement.style.height = height + 'px'
+                };
 
-    const addNewBlock = () => {
-      const newDiv = document.createElement("div");
-        const newContent = document.createTextNode("Hi there and greetings!");
-        newDiv.appendChild(newContent);
-        textHolder.insertBefore(newDiv, textHolderInner);
-    }
+              SpotlightHub.prototype.redirect = function(url) {
+                  // check if it's skybet domain and redirect relative path
+                  const domain = (new URL(url));
+                  if (domain.hostname === "m.skybet.com") {
+                      window.location = domain.pathname;
+                  } else {
+                      window.location = url;
+                  }
+                };
 
-    const resize_ob = new ResizeObserver((entries) => sendResize());
+                SpotlightHub.prototype.bindEvents = function() {
+                  window.addEventListener("message", this.eventCallbackHandler, false);
+                  window.addEventListener("resize", this.resizeHandler, false);
+              }
 
-    resize_ob.observe(textHolder)
+              SpotlightHub.prototype.unBindEvents = function() {
+                  window.removeEventListener("message", this.eventCallbackHandler, false);
+                  window.removeEventListener("resize", this.resizeHandler, false);
+              }
 
-    //****************//
-    //*** Tracking ***//
-    //****************//
+              // SpotlightHub.prototype.addOutcomeToBetslip = function (data) {
+              //     const den = data.lp_den;
+              //     const num = data.lp_num;
+              //     const outcomeId = data.ev_oc_id;
+              //     this.addOutcome(outcomeId, num, den);
+              // }
 
-    const linkButtons = document.querySelectorAll(".linkClicked");
+              // return SpotlightHub;
 
-    linkButtons.forEach(function(linkButton) {
-      linkButton.addEventListener('click',(butt) => linkClicked(butt))
-    });
+              const trackAnalyticsAction = (payload) => {
+                console.log("tracking:", payload)
+              }
+              const addOutcome = (payload) => {
+                console.log("addOutcome:", payload)
+              }
+              const removeOutcome = (payload) => {
+                console.log("removeOutcome:", payload)
+              }
+              const spotlight = new SpotlightHub({
+                origin: "https://sbfanhope.racingpost.com",
+                hubPageName: "Start of Season",
+                trackAnalyticsAction,
+                addOutcome,
+                removeOutcome,
+                spotlightHubElement
+              })
 
-    const linkClicked = (butt) => {
-      sendMessage({
-        type: "TRACK_ACTION",
-        payload: {
-          event:  butt.currentTarget.dataset.track
-        },
-      })
-    }
 
 
-    const sendMessage = (payload) => {
-      console.log(`sending: ${JSON.stringify(payload)}`)
-      window.parent.postMessage(payload,"*");
-    }
+
+
+
+
   </script>
 </body>
 </html>
