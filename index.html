@@ -69,6 +69,7 @@
                               case "RESIZE":
                                  console.log("case: RESIZE")
                                  console.log(this.spotlightHubElement)
+                                 console.log(data.payload)
                                   this.spotlightHubElement.style.height = this.resizeHandler(data.payload.pageHeight);
                               break;
                               case "TRACK_ACTION":
