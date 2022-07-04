@@ -52,26 +52,26 @@
                           const data = event.data;
                           switch (data.type) {
                               case "BF_ADD_SELECTION":
-                                  console.log("case: BF_ADD_SELECTION")
+                                  console.log("case: BF_ADD_SELECTION", data)
                                   this.addOutcome(data.payload);
                                   this.trackAnalyticsAction(`[${this.hubPageName}] added outcome: ${data.payload.ev_oc_id}`)
                               break;
                               case "BF_REMOVE_SELECTION":
-                                  console.log("case: BF_REMOVE_SELECTION")
+                                  console.log("case: BF_REMOVE_SELECTION", data)
                                   this.removeOutcome(data.payload.ev_oc_id);
                                   this.trackAnalyticsAction(`[${this.hubPageName}] removed outcome: ${data.payload.ev_oc_id}`)
                               break;
                               case "REDIRECT_LINK":
-                                  console.log("case: REDIRECT_LINK")
+                                  console.log("case: REDIRECT_LINK", data)
                                   this.redirect(data.payload.url);
                                   this.trackAnalyticsAction(`[${this.pageName}] redirect: ${data.payload.url}`)
                               break;
                               case "RESIZE":
-                                 console.log("case: RESIZE")
+                                 console.log("case: RESIZE", data)
                                   this.spotlightHubElement.style.height = this.resizeHandler(data.payload.pageHeight);
                               break;
                               case "TRACK_ACTION":
-                                  console.log("case: TRACK_ACTION")
+                                  console.log("case: TRACK_ACTION", data)
                                   this.trackAnalyticsAction(`[${this.pageName}] event: ${data.payload.event}`)
                               break;
                           }
