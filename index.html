@@ -80,7 +80,9 @@
               }
 
               SpotlightHub.prototype.resizeHandler = function(height) {
-                  this.spotlightHubElement.style.height = height + 'px'
+                  const h = height + 'px'
+                  this.spotlightHubElement.style.height = h
+                  console.log(`we have set the iframe to ${h}`)
                 };
 
               SpotlightHub.prototype.redirect = function(url) {
