@@ -14,7 +14,7 @@
     style="border: none;"
     width="100%"
     height="700px"
-    src="https://sbfanhope.racingpost.com"
+    src="https://admin-sbfanhope.racingpost.com"
     sandbox="allow-scripts allow-same-origin allow-popups">
   </iframe>
   <script>
@@ -71,7 +71,7 @@
                                   this.spotlightHubElement.style.height = this.resizeHandler(data.payload.pageHeight);
                               break;
                               case "TRACK_ACTION":
-                                  console.log("case: TRACK_ACTION", data)
+                                  console.log("case: TRACK_ACTION")
                                   this.trackAnalyticsAction(`[${this.pageName}] event: ${data.payload.event}`)
                               break;
                           }
@@ -124,7 +124,7 @@
 
               const spotlightHubElement = document.querySelector('#js-spotlight-hub')
               const spotlight = new SpotlightHub({
-                origin: "https://sbfanhope.racingpost.com",
+                origin: "https://admin-sbfanhope.racingpost.com",
                 hubPageName: "Start of Season",
                 trackAnalyticsAction,
                 addOutcome,
