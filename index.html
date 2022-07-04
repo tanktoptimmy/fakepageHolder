@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div>
+    <h2>Sending Size - RESIZE</h2>
+    <button title="Setting size" id="size">Send size</button>
+    <button title="New Block" id="append">Add new block of text</button>
+  </div>
+  <div>
+    <h2>Header Items - TRACK_ACTION</h2>
+    <button title="Link Clicked" data-track="Header menu click - Home" class="linkClicked">Home</button>
+    <button title="Link Clicked" data-track="Header menu click - Have Your Say" class="linkClicked">Have Your Say</button>
+  </div>
+  <div>
+    <h2>Video - TRACK_ACTION</h2>
+    <button title="play video" data-track="Play Video" class="linkClicked">Play Video</button>
+  </div>
+  <div>
+    <h2>Submit Survey - TRACK_ACTION</h2>
+    <button title="Submit Survey" data-track="Submit Survey" class="linkClicked">Submit Survey</button>
+  </div>
+  <br/>
+  <br/>
+  <div id="textHolder">
+    <div id="textHolderInner">
+      The Add and Remove selections look as if they're fine. Currently I've got a but in my page where the origin is set incorrectly
+    </div>
+  </div>
+  <script>
+
+    //****************//
+    //*** Resizing ***//
+    //****************//
+    const sizeButton = document.querySelector("#size");
+    sizeButton.addEventListener('click',() => sendResize())
+
+    const sendResize = () => {
+      // look at how to send full height as seems to miss off the margins
+      var pageHeight = document.body.clientHeight
+      var scrollHeight = document.body.scrollHeight;
+      sendMessage({
+        type: "RESIZE",
+        payload: {
+          pageHeight
+        },
+      })
+    }
+
+    const appendButton = document.querySelector("#append");
+    const textHolder = document.querySelector('#textHolder');
+    const textHolderInner = document.querySelector('#textHolderInner');
+
+    appendButton.addEventListener('click', () => addNewBlock())
+
+    const addNewBlock = () => {
+      const newDiv = document.createElement("div");
+        const newContent = document.createTextNode("Hi there and greetings!");
+        newDiv.appendChild(newContent);
+        textHolder.insertBefore(newDiv, textHolderInner);
+    }
+
+    const resize_ob = new ResizeObserver((entries) => sendResize());
+
+    resize_ob.observe(textHolder)
+
+    //****************//
+    //*** Tracking ***//
+    //****************//
+
+    const linkButtons = document.querySelectorAll(".linkClicked");
+
+    linkButtons.forEach(function(linkButton) {
+      linkButton.addEventListener('click',(butt) => linkClicked(butt))
+    });
+
+    const linkClicked = (butt) => {
+      sendMessage({
+        type: "TRACK_ACTION",
+        payload: {
+          event:  butt.currentTarget.dataset.track
+        },
+      })
+    }
+
+
+    const sendMessage = (payload) => {
+      console.log(`sending: ${JSON.stringify(payload)}`)
+      window.parent.postMessage(payload,"*");
+    }
+  </script>
+</body>
+</html>
