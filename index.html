@@ -71,12 +71,16 @@
                                   this.spotlightHubElement.style.height = this.resizeHandler(data.payload.pageHeight);
                               break;
                               case "TRACK_ACTION":
-                                  console.log("case: TRACK_ACTION")
+                                  console.log("case: TRACK_ACTION", data)
+                                  if (data.payload.scrollToTop) {
+                                    window.scrollTo(0);
+                                  }
                                   this.trackAnalyticsAction(`[${this.pageName}] event: ${data.payload.event}`)
                               break;
                           }
                       }
               }
+
 
               SpotlightHub.prototype.resizeHandler = function(height) {
                   this.spotlightHubElement.style.height = height + 'px'
